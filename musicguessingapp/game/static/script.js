@@ -15,7 +15,7 @@ var audio = {
                   alwaysShowControls: true,
                   timeAndDurationSeparator: '<span></span>',
                   loop: true,
-                  //iPadUseNativeControls: true, Originaalkoodis oli sees, ilma on vist visuaalselt parem
+                  //iPadUseNativeControls: true, Was in original code, made it look bad on mobile
                   //iPhoneUseNativeControls: true,
                   //AndroidUseNativeControls: true             
               });            

@@ -26,6 +26,7 @@
 </head>
 
 <body>
+    <h3 class="counter">Vigu: {{vigu}}</h3>
     <h2 class="pealkiri">Mängi laul:</h2>
 
     <!-- See on MediaPlayer, kus saab laulu mängida -->
@@ -33,9 +34,9 @@
         <div class="container">
             <div class="music-player">
                 &nbsp; &nbsp; &nbsp;
-                <div class="player">
-                    <h1>{{item.title}}</h1>
-                    <audio class="fc-media" preload="auto" autoplay loop style="width: 100%;">
+                  <div class="player">
+                      <h1>{{item.title}}</h1>
+                    <audio class="fc-media" style="width: 100%;">
                         <source src="{% if page_obj.audio_file %}{{page_obj.audio_file.url}} {% else %} {{page_obj.audio_link}} {% endif %}" type="audio/mp3"/>
                     </audio>
                 </div>
@@ -54,13 +55,44 @@
 </body>
 
 <script>
+
+    const counterElement = document.querySelector('.counter');
+    const currentMistakes = parseInt(counterElement.innerText.split(':')[1])
+
+    function update(vead) {
+        $.ajax({
+              type: "POST",
+              url: "/playlist/{{ playlist_id }}/",
+              data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                vigu: vead,
+              },
+              success: function(response) {
+                document.querySelector('.counter').innerText = 'Vigu: ' + response.vigu;
+                window.location.href = "/playlist/{{playlist_id}}";
+              },
+              error: function(error) {
+                console.log(error);
+              }
+            });
+          }
+
     function guessCheck(buttonId) {
+        const button = document.getElementById(buttonId);
+        console.log(currentMistakes)
+      
         if ("{{id}}" == buttonId) {
-            const button = document.getElementById(buttonId);
             // Tee midagi kui valik on õige
-            window.location.href = "/playlist/{{playlist_id}}";
+            button.classList.add('right');
+            update(parseInt(counterElement.innerText.split(':')[1]) - currentMistakes);
+
         } else {
             // Tee midagi kui valik on vale
+            button.classList.add('wrong');
+            
+            let viguCount = parseInt(counterElement.innerText.split(':')[1]);
+            viguCount++;
+            counterElement.innerText = 'Vigu: ' + viguCount;
         }
     }
 
@@ -71,13 +103,6 @@
         });
     });
 
-    // Function to add the fa-2x class to the buttons
-    function addFa2xClass() {
-        $('.mejs__button').addClass('fa-3x');
-    }
-
-    // Add an event listener to the audio element to call the addFa2xClass function when it's loaded
-    document.querySelector('.fc-media').addEventListener('loadeddata', addFa2xClass);
 </script>
 
 </html>

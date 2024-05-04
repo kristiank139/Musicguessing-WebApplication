@@ -8,18 +8,19 @@ from random import shuffle
 
 # Create your views here.
 
-def total_songs(playlistid): # Annab numbri, kui palju laule on playlist'is
-    # Ühendamine andmebaasiga
-    conn = sqlite3.connect("db.sqlite3")
-
-    # Leiab kõik laulude arv, mille playlist_id on playlistid
-    query = f"SELECT COUNT(*) FROM game_playlist_songs WHERE playlist_id = ?;"
-    cursor = conn.execute(query, (playlistid,))
-    count = cursor.fetchone()[0]
-
-    conn.close()
-
-    return count
+# Ei kasuta enam
+#def total_songs(playlistid): # Annab numbri, kui palju laule on playlist'is
+#    # Ühendamine andmebaasiga
+#    conn = sqlite3.connect("db.sqlite3")
+#
+#    # Leiab kõik laulude arv, mille playlist_id on playlistid
+#    query = f"SELECT COUNT(*) FROM game_playlist_songs WHERE playlist_id = ?;"
+#    cursor = conn.execute(query, (playlistid,))
+#    count = cursor.fetchone()[0]
+#
+#    conn.close()
+#
+#    return count
 
 def index(request):
     conn = sqlite3.connect("db.sqlite3")
@@ -43,22 +44,25 @@ def playlist_page(request, playlist_id):
         request.session['song_order'] = list(range(len(songs)))
         shuffle(request.session['song_order'])
 
+    if 'vigu' not in request.session:
+        request.session['vigu'] = 0
+
     song_order = request.session['song_order']
     
-    if request.method == "POST": # Kontrollib, kas request method on post
-
-        return redirect(f"/playlist/{playlist_id}/")
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        print(request.POST)
+        print(request.POST.get('vigu'))
+        request.session['vigu'] += int(request.POST.get("vigu", 0))
+        return JsonResponse({'vigu': request.session['vigu']})
     
     if len(song_order) == 0:
         request.session['song_order'] = list(range(len(songs)))
+        request.session['vigu'] = 0
         shuffle(request.session['song_order'])
         song_order = request.session['song_order']
 
 
-
-    print(song_order)
     song_id = song_order.pop()
-    print(song_id)
     page_obj = songs[song_id]
 
     # Valikvastuste saamine juhuslikult
@@ -73,5 +77,5 @@ def playlist_page(request, playlist_id):
     shuffle(valikud) # Suvaline järjekord
     
     context = {'playlist': playlist, 'songs': songs, 'page_obj': page_obj, 'playlist_id': playlist_id, 'song_id': song_id, 'valik1': valikud[0],
-               "valik2": valikud[1], "valik3": valikud[2], "valik4": valikud[3], "id": valikud.index(songs[song_id].title)}
+               "valik2": valikud[1], "valik3": valikud[2], "valik4": valikud[3], "id": valikud.index(songs[song_id].title), 'vigu': request.session['vigu']}
     return render(request, 'game/game.html', context)
