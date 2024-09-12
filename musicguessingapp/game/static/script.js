@@ -10,18 +10,18 @@ var audio = {
           var media = $('audio.fc-media', (target !== undefined) ? target : 'body');            
           if (media.length) {                
               media.mediaelementplayer({                    
-                  audioHeight: 40,
+                  audioHeight: 60,
                   features : ['playpause', 'current', 'duration', 'progress', 'volume', 'tracks', 'fullscreen'],
-                  alwaysShowControls      : true,
+                  alwaysShowControls: true,
                   timeAndDurationSeparator: '<span></span>',
-                  iPadUseNativeControls: true,
-                  iPhoneUseNativeControls: true,
-                  AndroidUseNativeControls: true                
+                  loop: true,
+                  //iPadUseNativeControls: true, Was in original code, made it look bad on mobile
+                  //iPhoneUseNativeControls: true,
+                  //AndroidUseNativeControls: true             
               });            
           }        
-      },
-          
-  },
+      },   
+   },
 };
 
 audio.init();
